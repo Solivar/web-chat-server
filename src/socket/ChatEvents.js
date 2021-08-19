@@ -1,13 +1,13 @@
-const isValidNameLength = name => {
+const isInvalidName = name => {
   if (name.length < 1 || name.length > 25) {
-    return false;
+    return true;
   }
 
-  return true;
+  return false;
 };
 
 const isNameTaken = (users, name) => {
-  const nameExists = users.find(userName => userName === name);
+  const nameExists = users.find(user => user.name === name);
 
   if (nameExists) {
     return true;
@@ -16,19 +16,41 @@ const isNameTaken = (users, name) => {
   return false;
 };
 
-module.exports = (socket, users) => {
+module.exports = (io, socket, users) => {
   const addUser = name => {
-    console.log('user joining', name);
+    if (socket.user) {
+      socket.emit('join:exception', 'Already joined.');
 
-    if (!isValidNameLength(users, name)) {
-      // socket.emit('Name must be 1 - 25 characters long.');
       return;
     }
 
-    if (!isNameTaken(users, name)) {
+    if (isInvalidName(name)) {
+      socket.emit('join:exception', 'Name must be 1 - 25 characters long.');
+
       return;
     }
+
+    if (isNameTaken(users, name)) {
+      socket.emit('join:exception', 'Name is already taken.');
+
+      return;
+    }
+
+    socket.user = {
+      name,
+    };
+
+    users.push({ id: socket.id, name });
+
+    socket.emit('join:response', name);
+    io.emit('chat:user_join', name);
   };
 
-  socket.on('chat:join', addUser);
+  const sendUsers = () => {
+    console.log(users);
+    socket.emit('chat:user_list', users);
+  };
+
+  socket.on('join:set_name', addUser);
+  socket.on('chat:get_user_list', sendUsers);
 };

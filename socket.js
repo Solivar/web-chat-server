@@ -14,10 +14,11 @@ module.exports = httpServer => {
     console.log('connected');
 
     socket.on('disconnect', () => {
+      // TODO: Remove from user array
       console.log('user disconnected');
     });
 
-    chatEvents(socket, users);
+    chatEvents(io, socket, users);
   });
 };
 
