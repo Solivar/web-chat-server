@@ -1,15 +1,18 @@
 const express = require('express');
-const app = express();
-const port = 5000;
-
 const morgan = require('morgan');
+
+const port = 8000;
+const app = express();
+
+const httpServer = require('http').createServer();
+require('./socket')(httpServer);
 
 app.use(morgan('dev'));
 
 app.get('/', (req, res) => {
-  res.send('<h1>testaa</h1>!');
+  res.send('Hello World!');
 });
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
