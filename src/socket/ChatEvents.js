@@ -47,8 +47,8 @@ module.exports = (io, socket, users) => {
   };
 
   const sendUsers = () => {
-    console.log(users);
-    socket.emit('chat:user_list', users);
+    const names = users.map(user => user.name);
+    socket.emit('chat:user_list', names);
   };
 
   socket.on('join:set_name', addUser);

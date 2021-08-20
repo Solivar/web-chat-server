@@ -11,40 +11,17 @@ module.exports = httpServer => {
   });
 
   io.on('connection', socket => {
-    console.log('connected');
-
     socket.on('disconnect', () => {
-      // TODO: Remove from user array
-      console.log('user disconnected');
+      if (!socket.user) {
+        return;
+      }
+
+      const userIndex = users.findIndex(user => user.id === socket.id);
+
+      io.emit('chat:user_leave', users[userIndex].name);
+      users.splice(userIndex, 1);
     });
 
     chatEvents(io, socket, users);
   });
 };
-
-// const test = require('./src/socket/ChatEvents');
-
-// console.log('kek');
-// console.log(test);
-
-// const io = new Server(server, {
-//   cors: {
-//     origin: 'http://localhost:4200',
-//     methods: ['GET', 'POST'],
-//   },
-// });
-
-// const users = [];
-
-// io.on('connection', socket => {
-//   socket.on('disconnect', () => {
-//     console.log('user disconnected');
-//   });
-// });
-
-// const onConnection = socket => {
-//   registerOrderHandlers(io, socket);
-//   registerUserHandlers(io, socket);
-// };
-
-// io.on('connection', onConnection);
