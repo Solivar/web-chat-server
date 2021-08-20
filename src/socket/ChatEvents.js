@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const isInvalidName = name => {
   if (name.length < 1 || name.length > 25) {
     return true;
@@ -51,6 +53,20 @@ module.exports = (io, socket, users) => {
     socket.emit('chat:user_list', names);
   };
 
+  const sendMessage = messageContent => {
+    const id = crypto.randomBytes(16).toString('hex');
+    const date = new Date();
+    const message = {
+      id,
+      name: socket.user.name,
+      content: messageContent,
+      createdAt: date,
+    };
+
+    io.emit('chat:message', message);
+  };
+
   socket.on('join:set_name', addUser);
   socket.on('chat:get_user_list', sendUsers);
+  socket.on('chat:send_message', sendMessage);
 };
