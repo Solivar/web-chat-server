@@ -1,5 +1,6 @@
 const chatEvents = require('./src/socket/ChatEvents');
 
+const messages = [];
 const users = [];
 
 module.exports = httpServer => {
@@ -22,6 +23,6 @@ module.exports = httpServer => {
       users.splice(userIndex, 1);
     });
 
-    chatEvents(io, socket, users);
+    chatEvents(io, socket, { messages, users });
   });
 };

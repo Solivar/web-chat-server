@@ -18,7 +18,15 @@ const isNameTaken = (users, name) => {
   return false;
 };
 
-module.exports = (io, socket, users) => {
+const addMessage = (messages, message) => {
+  if (messages.length === 10) {
+    messages.shift();
+  }
+
+  messages.push(message);
+};
+
+module.exports = (io, socket, { messages, users }) => {
   const addUser = name => {
     if (socket.user) {
       socket.emit('join:exception', 'Already joined.');
@@ -63,10 +71,16 @@ module.exports = (io, socket, users) => {
       createdAt: date,
     };
 
+    addMessage(messages, message);
     io.emit('chat:message', message);
+  };
+
+  const sendMessages = () => {
+    socket.emit('chat:message_list', messages);
   };
 
   socket.on('join:set_name', addUser);
   socket.on('chat:get_user_list', sendUsers);
   socket.on('chat:send_message', sendMessage);
+  socket.on('chat:get_message_list', sendMessages);
 };
