@@ -6,7 +6,7 @@ const users = [];
 module.exports = httpServer => {
   const io = require('socket.io')(httpServer, {
     cors: {
-      origin: 'http://localhost:4200',
+      origin: process.env.CLIENT_ADDRESS,
       methods: ['GET', 'POST'],
     },
   });

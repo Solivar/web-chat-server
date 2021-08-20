@@ -1,5 +1,6 @@
-const port = 8000;
+require('dotenv').config();
 
+const port = 8000;
 const httpServer = require('http').createServer();
 require('./src/socket')(httpServer);
 
