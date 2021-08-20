@@ -1,4 +1,4 @@
-const chatEvents = require('./src/socket/ChatEvents');
+const chatEvents = require('./socket/ChatEvents');
 
 const messages = [];
 const users = [];

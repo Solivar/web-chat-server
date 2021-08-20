@@ -1,7 +1,8 @@
 const crypto = require('crypto');
+const constants = require('../constants');
 
 const isInvalidName = name => {
-  if (name.length < 1 || name.length > 25) {
+  if (name.length < constants.MIN_NAME_LENGTH || name.length > constants.MAX_NAME_LENGTH) {
     return true;
   }
 
@@ -19,7 +20,7 @@ const isNameTaken = (users, name) => {
 };
 
 const addMessage = (messages, message) => {
-  if (messages.length === 10) {
+  if (messages.length === constants.MAX_MESSAGES) {
     messages.shift();
   }
 
