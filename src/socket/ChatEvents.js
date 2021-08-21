@@ -33,6 +33,16 @@ const addMessage = (messages, message) => {
   messages.push(message);
 };
 
+const compareUserNames = (userOne, userTwo) => {
+  if (userOne.name < userTwo.name) {
+    return -1;
+  }
+  if (userOne.name > userTwo.name) {
+    return 1;
+  }
+  return 0;
+};
+
 module.exports = (io, socket, { messages, users }) => {
   const addUser = name => {
     if (socket.user) {
@@ -61,6 +71,7 @@ module.exports = (io, socket, { messages, users }) => {
     };
 
     users.push({ id: socket.id, name });
+    users.sort(compareUserNames);
 
     socket.emit('join:response', name);
     io.emit('chat:user_join', name);
