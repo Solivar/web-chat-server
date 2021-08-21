@@ -1,8 +1,14 @@
 const crypto = require('crypto');
-const constants = require('../constants');
+const {
+  MIN_NAME_LENGTH,
+  MAX_NAME_LENGTH,
+  MAX_MESSAGES,
+  MIN_MESSAGE_LENGTH,
+  MAX_MESSAGE_LENGTH,
+} = require('../constants');
 
 const isInvalidName = name => {
-  if (name.length < constants.MIN_NAME_LENGTH || name.length > constants.MAX_NAME_LENGTH) {
+  if (name.length < MIN_NAME_LENGTH || name.length > MAX_NAME_LENGTH) {
     return true;
   }
 
@@ -20,7 +26,7 @@ const isNameTaken = (users, name) => {
 };
 
 const addMessage = (messages, message) => {
-  if (messages.length === constants.MAX_MESSAGES) {
+  if (messages.length === MAX_MESSAGES) {
     messages.shift();
   }
 
@@ -36,7 +42,10 @@ module.exports = (io, socket, { messages, users }) => {
     }
 
     if (isInvalidName(name)) {
-      socket.emit('join:exception', 'Name must be 1 - 25 characters long.');
+      socket.emit(
+        'join:exception',
+        `Name must be ${MIN_NAME_LENGTH} - ${MAX_NAME_LENGTH} characters long.`,
+      );
 
       return;
     }
@@ -63,6 +72,19 @@ module.exports = (io, socket, { messages, users }) => {
   };
 
   const sendMessage = messageContent => {
+    if (
+      !messageContent ||
+      messageContent.length < MIN_MESSAGE_LENGTH ||
+      messageContent.length > MAX_MESSAGE_LENGTH
+    ) {
+      socket.emit(
+        'chat:error',
+        `Message must be ${MIN_MESSAGE_LENGTH} - ${MAX_MESSAGE_LENGTH} characters long.`,
+      );
+
+      return;
+    }
+
     const id = crypto.randomBytes(16).toString('hex');
     const date = new Date();
     const message = {
