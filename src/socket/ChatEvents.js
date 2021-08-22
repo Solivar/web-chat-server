@@ -37,9 +37,11 @@ const compareUserNames = (userOne, userTwo) => {
   if (userOne.name < userTwo.name) {
     return -1;
   }
+
   if (userOne.name > userTwo.name) {
     return 1;
   }
+
   return 0;
 };
 
@@ -113,8 +115,13 @@ module.exports = (io, socket, { messages, users }) => {
     socket.emit('chat:message_list', messages);
   };
 
+  const sendUserTyping = () => {
+    io.emit('chat:user_typing', socket.user.name);
+  };
+
   socket.on('join:set_name', addUser);
   socket.on('chat:get_user_list', sendUsers);
   socket.on('chat:send_message', sendMessage);
   socket.on('chat:get_message_list', sendMessages);
+  socket.on('chat:user_typing', sendUserTyping);
 };
