@@ -2,48 +2,17 @@ const crypto = require('crypto');
 const {
   MIN_NAME_LENGTH,
   MAX_NAME_LENGTH,
-  MAX_MESSAGES,
   MIN_MESSAGE_LENGTH,
   MAX_MESSAGE_LENGTH,
 } = require('../constants');
 
-const isInvalidName = name => {
-  if (name.length < MIN_NAME_LENGTH || name.length > MAX_NAME_LENGTH) {
-    return true;
-  }
-
-  return false;
-};
-
-const isNameTaken = (users, name) => {
-  const nameExists = users.find(user => user.name === name);
-
-  if (nameExists) {
-    return true;
-  }
-
-  return false;
-};
-
-const addMessage = (messages, message) => {
-  if (messages.length === MAX_MESSAGES) {
-    messages.shift();
-  }
-
-  messages.push(message);
-};
-
-const compareUserNames = (userOne, userTwo) => {
-  if (userOne.name < userTwo.name) {
-    return -1;
-  }
-
-  if (userOne.name > userTwo.name) {
-    return 1;
-  }
-
-  return 0;
-};
+const {
+  addMessage,
+  compareUserNames,
+  isInvalidName,
+  isNameTaken,
+  isUserSpamming,
+} = require('../helpers');
 
 module.exports = (io, socket, { messages, users }) => {
   const addUser = name => {
@@ -72,7 +41,7 @@ module.exports = (io, socket, { messages, users }) => {
       name,
     };
 
-    users.push({ id: socket.id, name });
+    users.push({ id: socket.id, name, recentMessageTimes: [] });
     users.sort(compareUserNames);
 
     socket.emit('join:response', name);
@@ -96,6 +65,10 @@ module.exports = (io, socket, { messages, users }) => {
       );
 
       return;
+    }
+
+    if (isUserSpamming(socket.id)) {
+      socket.emit('chat:error', `Slow down! You are sending messages too fast.`);
     }
 
     const id = crypto.randomBytes(16).toString('hex');

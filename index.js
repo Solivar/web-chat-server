@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const port = 8000;
+const port = process.env.PORT || 8000;
 const httpServer = require('http').createServer();
 require('./src/socket')(httpServer);
 
