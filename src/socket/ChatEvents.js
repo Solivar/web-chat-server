@@ -12,6 +12,7 @@ const {
   isInvalidName,
   isNameTaken,
   isUserSpamming,
+  updateUserLastMessageTimes,
 } = require('../helpers');
 
 module.exports = (io, socket, { messages, users }) => {
@@ -41,7 +42,7 @@ module.exports = (io, socket, { messages, users }) => {
       name,
     };
 
-    users.push({ id: socket.id, name, recentMessageTimes: [] });
+    users.push({ id: socket.id, name });
     users.sort(compareUserNames);
 
     socket.emit('join:response', name);
@@ -67,8 +68,10 @@ module.exports = (io, socket, { messages, users }) => {
       return;
     }
 
-    if (isUserSpamming(socket.id)) {
+    if (isUserSpamming(users, socket.id)) {
       socket.emit('chat:error', `Slow down! You are sending messages too fast.`);
+
+      return;
     }
 
     const id = crypto.randomBytes(16).toString('hex');
